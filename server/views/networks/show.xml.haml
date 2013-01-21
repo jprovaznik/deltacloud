@@ -1,0 +1,16 @@
+- unless defined?(partial)
+  !!! XML
+%network{ :href => network_url(@network.id), :id => @network.id }
+  %name=@network.name
+  %state<
+    =@network.state
+  %address_block=@network.address_block
+  %subnets
+    - (@network.subnets || []).each do |subnet|
+      %subnet{:href => subnet_url(subnet), :id=>subnet}
+  %ports
+    - (@network.ports || []).each do |port|
+      %port{:href => port_url(port), :id=>port}
+  %actions
+    - if driver.respond_to?(:destroy_network)
+      %link{ :rel => "destroy", :method => "delete", :href => destroy_network_url(@network.id)}
