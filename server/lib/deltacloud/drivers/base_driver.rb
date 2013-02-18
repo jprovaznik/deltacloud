@@ -256,6 +256,9 @@ module Deltacloud
       addresses(credentials, opts).first if has_capability?(:addresses)
     end
 
+    def network(credentials, opts={})
+      networks(credentials, opts).first if has_capability?(:networks)
+    end
 
     MEMBER_SHOW_METHODS = [ :realm, :image, :instance, :storage_volume, :bucket, :blob,
                             :key, :firewall ] unless defined?(MEMBER_SHOW_METHODS)
