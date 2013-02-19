@@ -201,6 +201,42 @@ class RhevmDriver < Deltacloud::BaseDriver
     end
   end
 
+  def networks(credentials, opts={})
+    client = new_client(credentials)
+    networks = []
+    safely do
+      client.networks(opts).each do |n|
+        networks << convert_network(n)
+      end
+    end
+    filter_on(networks, :id, opts)
+  end
+
+  #def create_network(credentials, opts={})
+  #  RHEV API supports creation of networks, but network creation is
+  #  admin task, it's not expected to create networks on demand.
+  #  If we want to have this action, it must also be implemented in
+  #  rbovirt at first
+  #end
+
+  #def destroy_network(credentials, opts={})
+  #  RHEV API supports deletion of networks, but network creation is
+  #  admin task, it's not expected to delete networks on demand.
+  #  If we want to have this action, it must also be implemented in
+  #  rbovirt at first
+  #end
+
+  #def subnets(credentials, opts={})
+  #  there is not any suitable entity in RHEV networking model
+  #end
+
+  #def ports(credentials, opts={})
+  #  there is not any suitable entity in RHEV networking model,
+  #  instead of it a user creates one or more virtual NIC for a
+  #  virtual machine, this VNIC is then associated with a logical
+  #  network
+  #end
+
   private
 
   def new_client(credentials)
@@ -334,6 +370,17 @@ class RhevmDriver < Deltacloud::BaseDriver
       :name => r.name,
       :state => dc.status.strip.upcase == 'UP' ? 'AVAILABLE' : 'DOWN',
       :limit => :unlimited
+    )
+  end
+
+  def convert_network(n)
+    Network.new(
+      :id     => n.id,
+      :name   => n.name,
+      # TODO: unify states across all providers (once we know values returned by
+      # other providers).
+      # possible values returned by RHEV: operational, non_operational
+      :state  => n.status
     )
   end
 
